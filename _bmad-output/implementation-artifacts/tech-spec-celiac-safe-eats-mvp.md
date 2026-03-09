@@ -2,7 +2,7 @@
 title: 'Celiac Safe Eats MVP'
 slug: 'celiac-safe-eats-mvp'
 created: '2026-03-09'
-status: 'ready-for-dev'
+status: 'completed'
 stepsCompleted: [1, 2, 3, 4]
 tech_stack: ['Next.js 14+ (App Router)', 'React 18', 'TypeScript', 'Tailwind CSS', 'Leaflet', 'react-leaflet', 'OpenStreetMap', 'Google Places API (New)', '@anthropic-ai/sdk', 'Vercel']
 files_to_modify: ['app/layout.tsx', 'app/page.tsx', 'app/globals.css', 'app/api/search/route.ts', 'components/MapView.tsx', 'components/SearchButton.tsx', 'components/RadiusControl.tsx', 'components/RestaurantCard.tsx', 'lib/places.ts', 'lib/claude.ts', 'lib/types.ts']
@@ -97,7 +97,7 @@ lib/
 
 ### Tasks
 
-- [ ] Task 1: Project scaffolding
+- [x] Task 1: Project scaffolding
   - Files: `package.json`, `tsconfig.json`, `tailwind.config.ts`, `postcss.config.js`, `.env.local`, `.env.example`, `.gitignore`, `app/layout.tsx`, `app/page.tsx`, `app/globals.css`
   - Action:
     - Run `npx create-next-app@latest` with TypeScript + Tailwind + App Router
@@ -109,7 +109,7 @@ lib/
     - `app/page.tsx`: Dynamically import `MapView` with `ssr: false` (Leaflet requires browser APIs). Full viewport height `h-screen w-screen`. Show loading skeleton while MapView loads
   - Notes: Leaflet CSS must be imported globally — doesn't work with CSS modules. No `vercel.json` needed — default Next.js detection works on Vercel. User must set env vars in Vercel project settings.
 
-- [ ] Task 2: Define shared TypeScript types
+- [x] Task 2: Define shared TypeScript types
   - File: `lib/types.ts`
   - Action: Create all shared types:
     - `SafetyTier`: enum — `'dedicated-gf' | 'gf-aware' | 'gf-options' | 'risky'`
@@ -121,7 +121,7 @@ lib/
     - `SearchResponse`: `{ restaurants: EvaluatedRestaurant[] }`
   - Notes: These types are the contract between all layers — API route, Claude tool schema, and UI components.
 
-- [ ] Task 3: Build Google Places API client
+- [x] Task 3: Build Google Places API client
   - File: `lib/places.ts`
   - Action: Create `searchNearbyRestaurants(lat, lng, radiusMeters): Promise<Restaurant[]>` that calls Google Places API (New) Nearby Search endpoint.
     - URL: `https://places.googleapis.com/v1/places:searchNearby`
@@ -132,7 +132,7 @@ lib/
     - Transform response into `Restaurant[]` type
   - Notes: Max 20 results per call to keep Claude evaluation cost/latency manageable. Reviews field returns up to 5 most relevant reviews per place.
 
-- [ ] Task 4: Build Claude evaluation client
+- [x] Task 4: Build Claude evaluation client
   - File: `lib/claude.ts`
   - Action: Create `evaluateRestaurants(restaurants: Restaurant[]): Promise<ClaudeEvaluation[]>` that sends all restaurants to Claude in a single API call using tool use.
     - Use `@anthropic-ai/sdk` to create client
@@ -142,7 +142,7 @@ lib/
     - Max tokens: 4096
   - Notes: Single API call for the batch, not one per restaurant. The tool schema enforces structured output so we get parseable JSON, not free text.
 
-- [ ] Task 5: Build search API route
+- [x] Task 5: Build search API route
   - File: `app/api/search/route.ts`
   - Action: Create POST Route Handler that orchestrates the full pipeline:
     1. Parse request body as `SearchRequest` (validate lat, lng, radiusMeters)
@@ -154,7 +154,7 @@ lib/
     - Error handling: return appropriate HTTP status codes (400 for bad input, 502 for upstream API failures, 500 for internal errors) with error message
   - Notes: All API keys are server-side only — never exposed to client.
 
-- [ ] Task 6: Build MapView component
+- [x] Task 6: Build MapView component
   - File: `components/MapView.tsx`
   - Action: Create `"use client"` component — the main app shell. Manages all state and includes inline loading overlay:
     - **State**: `userLocation: [lat, lng] | null`, `radius: number` (default 1000), `restaurants: EvaluatedRestaurant[]`, `selectedRestaurant: EvaluatedRestaurant | null`, `isLoading: boolean`, `error: string | null`
@@ -167,7 +167,7 @@ lib/
     - **Re-center button**: Floating button to snap map back to user location
   - Notes: Leaflet requires dynamic import in Next.js (`next/dynamic` with `ssr: false`) because it accesses `window`. Use a dynamic import wrapper.
 
-- [ ] Task 7: Build SearchButton component
+- [x] Task 7: Build SearchButton component
   - File: `components/SearchButton.tsx`
   - Action: Create `"use client"` component — large CTA button fixed to bottom center of screen.
     - Props: `onSearch: () => void`, `isLoading: boolean`, `disabled: boolean`
@@ -176,7 +176,7 @@ lib/
     - Position: Fixed bottom center, above bottom sheet if open. `z-index` above map.
   - Notes: Keep it large and tappable — minimum 48px touch target per mobile UX best practices.
 
-- [ ] Task 8: Build RadiusControl component
+- [x] Task 8: Build RadiusControl component
   - File: `components/RadiusControl.tsx`
   - Action: Create `"use client"` component — 3 preset radius buttons.
     - Props: `radius: number`, `onChange: (radius: number) => void`
@@ -184,7 +184,7 @@ lib/
     - Position: Fixed, top-right of screen, overlaying map. Small footprint.
   - Notes: When radius changes, update the Circle overlay on the map in real-time (no new search until user taps search again). Three presets are simpler than a stepper and cover urban + rural use cases.
 
-- [ ] Task 9: Build RestaurantCard component (bottom sheet)
+- [x] Task 9: Build RestaurantCard component (bottom sheet)
   - File: `components/RestaurantCard.tsx`
   - Action: Create `"use client"` component — slides up from bottom when a pin is tapped.
     - Props: `restaurant: EvaluatedRestaurant | null`, `onClose: () => void`
@@ -204,17 +204,17 @@ lib/
 
 ### Acceptance Criteria
 
-- [ ] AC 1: Given the app is opened on a mobile browser, when geolocation is granted, then the map centers on the user's location with a blue dot and a translucent radius circle (default 1km)
-- [ ] AC 2: Given the app is opened, when geolocation is denied, then a friendly message is displayed explaining that location is required
-- [ ] AC 3: Given the user is on the map, when they tap "Find Safe Restaurants", then a loading overlay appears with "Evaluating safety..." text
-- [ ] AC 4: Given the search completes, when results are returned, then color-coded pins appear on the map (green for Dedicated GF / GF Aware, yellow for GF Options, red for Risky)
-- [ ] AC 5: Given pins are displayed, when the user taps a pin, then a bottom sheet slides up showing: restaurant name, distance, cuisine/price/rating, Claude's safety summary, order/ask/avoid recommendations, and a disclaimer
-- [ ] AC 6: Given the bottom sheet is open, when the user taps "Directions", then the device's native maps app opens with directions to the restaurant
-- [ ] AC 7: Given the bottom sheet is open, when the user taps outside it or swipes down, then it closes
-- [ ] AC 8: Given the user selects the "Far (3km)" radius preset, when they tap search again, then results are fetched within 3km and the circle overlay updates to match
-- [ ] AC 9: Given the user pans the map away from their location, when they tap the re-center button, then the map snaps back to their current location
-- [ ] AC 10: Given the API route receives a search request, when Google Places returns restaurants, then Claude evaluates all restaurants in a single batch call and returns structured JSON per restaurant
-- [ ] AC 11: Given the Google Places API or Claude API fails, when the error is caught, then a user-friendly error message is displayed (not a raw error)
+- [x] AC 1: Given the app is opened on a mobile browser, when geolocation is granted, then the map centers on the user's location with a blue dot and a translucent radius circle (default 1km)
+- [x] AC 2: Given the app is opened, when geolocation is denied, then a friendly message is displayed explaining that location is required
+- [x] AC 3: Given the user is on the map, when they tap "Find Safe Restaurants", then a loading overlay appears with "Evaluating safety..." text
+- [x] AC 4: Given the search completes, when results are returned, then color-coded pins appear on the map (green for Dedicated GF / GF Aware, yellow for GF Options, red for Risky)
+- [x] AC 5: Given pins are displayed, when the user taps a pin, then a bottom sheet slides up showing: restaurant name, distance, cuisine/price/rating, Claude's safety summary, order/ask/avoid recommendations, and a disclaimer
+- [x] AC 6: Given the bottom sheet is open, when the user taps "Directions", then the device's native maps app opens with directions to the restaurant
+- [x] AC 7: Given the bottom sheet is open, when the user taps outside it or swipes down, then it closes
+- [x] AC 8: Given the user selects the "Far (3km)" radius preset, when they tap search again, then results are fetched within 3km and the circle overlay updates to match
+- [x] AC 9: Given the user pans the map away from their location, when they tap the re-center button, then the map snaps back to their current location
+- [x] AC 10: Given the API route receives a search request, when Google Places returns restaurants, then Claude evaluates all restaurants in a single batch call and returns structured JSON per restaurant
+- [x] AC 11: Given the Google Places API or Claude API fails, when the error is caught, then a user-friendly error message is displayed (not a raw error)
 
 ## Additional Context
 
@@ -257,3 +257,9 @@ lib/
 - **Claude must not hallucinate**: Only evaluate data provided from Places API. If reviews or menu data are missing, say so explicitly.
 - **Google Places API cost**: Nearby Search (New) costs ~$32 per 1000 requests (Basic fields). Reviews field adds cost.
 - **Future considerations** (out of scope): Vercel KV for evaluation caching, adjustable radius slider, desktop side panel, user accounts, cuisine filters, PWA/offline support.
+
+## Review Notes
+- Adversarial review completed
+- Findings: 18 total, 16 fixed, 2 skipped (undecided/low: pagination token, Leaflet CSS FOUC)
+- Resolution approach: auto-fix
+- Key fixes: rate limiting, runtime validation of Claude output, error message sanitization, tier sorting safety, URL validation, AbortController for race conditions, iOS detection improvement, price level formatting, pin icon caching, viewport meta tag
